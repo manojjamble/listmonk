@@ -1,0 +1,38 @@
+# Render Blueprint: Dashboard -> New -> Blueprint -> pick this repo.
+# Secrets (sync: false) are prompted for in the dashboard on first deploy and never stored in git.
+services:
+  - type: web
+    name: listmonk
+    runtime: docker
+    plan: free
+    region: virginia           # same region as the Neon DB (AWS us-east-1)
+    dockerfilePath: ./Dockerfile.render
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      # --- Postgres (Neon) ---
+      - key: LISTMONK_db__host
+        value: ep-rapid-meadow-awnwd30f.c-12.us-east-1.aws.neon.tech
+      - key: LISTMONK_db__port
+        value: "5432"
+      - key: LISTMONK_db__user
+        value: neondb_owner
+      - key: LISTMONK_db__password
+        sync: false            # secret: entered in the Render dashboard, never committed
+      - key: LISTMONK_db__database
+        value: neondb
+      - key: LISTMONK_db__ssl_mode
+        value: require
+      - key: LISTMONK_db__max_open
+        value: "10"
+      - key: LISTMONK_db__max_idle
+        value: "5"
+      - key: LISTMONK_db__max_lifetime
+        value: 300s
+      # --- First-boot Super Admin (only used when the DB is empty) ---
+      - key: LISTMONK_ADMIN_USER
+        sync: false            # min 3 chars
+      - key: LISTMONK_ADMIN_PASSWORD
+        sync: false            # min 8 chars
+      - key: TZ
+        value: Asia/Kolkata
