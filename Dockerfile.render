@@ -1,0 +1,9 @@
+# listmonk on Render (free web service) + external Postgres (Neon).
+# Pinned to a stable release. Bump the tag to upgrade; --upgrade runs DB migrations on boot.
+FROM listmonk/listmonk:v6.2.0
+
+# Config comes only from LISTMONK_* env vars (set in the Render dashboard), not config.toml.
+# 1) --install --idempotent: creates tables only if the DB is empty (safe on every boot)
+# 2) --upgrade: applies migrations after an image bump
+# 3) start the app, listening on Render's $PORT (defaults to 10000)
+CMD ["sh", "-c", "./listmonk --install --idempotent --yes --config '' && ./listmonk --upgrade --yes --config '' && LISTMONK_app__address=0.0.0.0:${PORT:-10000} exec ./listmonk --config ''"]
